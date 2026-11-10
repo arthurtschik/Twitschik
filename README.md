@@ -4,6 +4,10 @@ Ein schlichter, moderner, inoffizieller Twitch-Client für Android – mit 7TV, 
 
 ## Download
 
+Am einfachsten über die Download-Seite: **https://arthurtschik.github.io/Twitschik/**
+
+Oder direkt hier:
+
 Die aktuelle APK findest du unter **[Releases](../../releases/latest)** (Datei `Twitschik.apk`).
 
 1. APK herunterladen und öffnen.

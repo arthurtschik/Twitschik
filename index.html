@@ -37,6 +37,11 @@
   .btn:active { transform: scale(.98); }
   .meta { margin: 12px 0 0; min-height: 21px; color: var(--dim); font-size: 13.5px; }
   .hint { margin: 22px 0 0; color: var(--faint); font-size: 12.5px; }
+  .store {
+    display: inline-block; margin-top: 22px; padding: 9px 18px; border: 1px solid var(--line); border-radius: 22px;
+    color: var(--dim); text-decoration: none; font-size: 13.5px;
+  }
+  .store:hover { border-color: var(--purple); color: var(--text); }
 
   .legal { margin-top: 14px; text-align: left; }
   .legal details { border-top: 1px solid var(--line, rgba(127,127,140,.3)); padding: 8px 0; }
@@ -58,6 +63,7 @@
   <a id="dl" class="btn" href="https://github.com/arthurtschik/Twitschik/releases/latest">Hier downloaden</a>
   <p id="meta" class="meta">Suche aktuelle Version …</p>
   <p class="hint">Nach dem Download die Datei öffnen und die Installation bestätigen (eventuell musst du „Installation aus unbekannten Quellen“ erlauben).</p>
+  <a class="store" href="https://arthurtschik.github.io/TschikStore/">Alle Apps</a>
   <noscript><p class="meta">Ohne JavaScript führt der Knopf zur Release-Seite bei GitHub.</p></noscript>
 </main>
 

@@ -43,6 +43,17 @@
   }
   .store:hover { border-color: var(--purple); color: var(--text); }
 
+  .news { margin-top: 20px; text-align: left; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .news summary { cursor: pointer; padding: 11px 16px; font-size: 14px; font-weight: 700; color: var(--text); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .news summary::-webkit-details-marker { display: none; }
+  .news summary::after { content: "▾"; color: var(--dim); transition: transform .15s ease; }
+  .news[open] summary::after { transform: rotate(180deg); }
+  .news .news-body { padding: 0 16px 12px; color: var(--dim); font-size: 13px; line-height: 1.55; }
+  .news ul { margin: 0; padding-left: 18px; }
+  .news li { margin: 0 0 6px; }
+  .news strong { color: var(--text); }
+  .news .more { display: inline-block; margin-top: 4px; color: var(--purple-light); font-size: 12.5px; }
+
   .legal { margin-top: 14px; text-align: left; }
   .legal details { border-top: 1px solid var(--line, rgba(127,127,140,.3)); padding: 8px 0; }
   .legal summary { cursor: pointer; color: var(--dim); font-size: 12px; list-style: none; text-align: center; }
@@ -63,6 +74,10 @@
   <a id="dl" class="btn" href="https://github.com/arthurtschik/Twitschik/releases/latest">Hier downloaden</a>
   <p id="meta" class="meta">Suche aktuelle Version …</p>
   <p class="hint">Nach dem Download die Datei öffnen und die Installation bestätigen (eventuell musst du „Installation aus unbekannten Quellen“ erlauben).</p>
+  <details class="news" id="news">
+    <summary id="newsTitle">Was ist neu?</summary>
+    <div class="news-body" id="newsBody">Lade …</div>
+  </details>
   <a class="store" href="https://arthurtschik.github.io/TschikStore/">Alle Apps</a>
   <noscript><p class="meta">Ohne JavaScript führt der Knopf zur Release-Seite bei GitHub.</p></noscript>
 </main>
@@ -116,10 +131,58 @@
         var mb = (apk.size / 1048576).toFixed(1).replace(".", ",");
         var date = rel.published_at ? new Date(rel.published_at).toLocaleDateString("de-DE") : "";
         meta.textContent = "Version " + String(rel.tag_name || "").replace(/^v/i, "") + " · " + mb + " MB" + (date ? " · " + date : "");
+        showNews(rel);
       })
       .catch(function () {
         meta.textContent = "Die aktuelle Version findest du über den Knopf.";
+        newsFallback();
       });
+
+    // „Was ist neu?“: die Neuerungen des aktuellen Releases (Text des Release bis zur ersten Trennlinie), immer aufklappbar.
+    // Alles wird als Text eingesetzt (nie als HTML); **fett** wird unterstützt.
+    var newsTitle = document.getElementById("newsTitle");
+    var newsBody = document.getElementById("newsBody");
+    function rich(el, text) {
+      text.split("**").forEach(function (part, i) {
+        if (!part) return;
+        var n = i % 2 ? document.createElement("strong") : document.createElement("span");
+        n.textContent = part;
+        el.appendChild(n);
+      });
+    }
+    function newsFallback(url) {
+      newsBody.textContent = "Die Neuerungen findest du bei den Release-Notizen auf GitHub. ";
+      var a = document.createElement("a");
+      a.className = "more";
+      a.href = url || "https://github.com/" + REPO + "/releases/latest";
+      a.textContent = "Zu den Release-Notizen";
+      newsBody.appendChild(a);
+    }
+    function showNews(rel) {
+      var lines = String(rel.body || "").split(/\r?\n/);
+      var ul = document.createElement("ul");
+      var plain = [];
+      var title = "";
+      for (var i = 0; i < lines.length; i++) {
+        var l = lines[i];
+        if (/^\s*-{3,}\s*$/.test(l) || /^#{1,3}\s+Was bisher/i.test(l)) break;
+        var h = /^#{1,3}\s+(.*)$/.exec(l);
+        if (h) { if (!title) title = h[1].trim(); continue; }
+        var b = /^\s*[-*]\s+(.*)$/.exec(l);
+        if (b) { var li = document.createElement("li"); rich(li, b[1].trim()); ul.appendChild(li); }
+        else if (l.trim()) { plain.push(l.trim()); }
+      }
+      if (!ul.childNodes.length && !plain.length) return newsFallback(rel.html_url);
+      newsTitle.textContent = "Was ist neu in " + String(rel.tag_name || "").replace(/^v/i, "") + "?";
+      newsBody.textContent = "";
+      plain.forEach(function (t) { var p = document.createElement("p"); rich(p, t); newsBody.appendChild(p); });
+      if (ul.childNodes.length) newsBody.appendChild(ul);
+      var a = document.createElement("a");
+      a.className = "more";
+      a.href = rel.html_url || "https://github.com/" + REPO + "/releases/latest";
+      a.textContent = "Alle Release-Notizen";
+      newsBody.appendChild(a);
+    }
   })();
 </script>
 </body>
